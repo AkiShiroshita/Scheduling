@@ -25,6 +25,7 @@ suppressPackageStartupMessages({
 # 1: Shiroshita,
 # 2: Suzuki,
 # 3: Takeshita
+# 4: Shiroshita
 
 ## Here set the parameters 
 target_hms <- ymd_hms("2021-09-01-01:01:01", tz = "Asia/Tokyo")
@@ -38,16 +39,17 @@ target_w <- weekdays(target)
 target_interval <- as.numeric(target_end - target + 1)
 
 # Creating matrix
-Days <- rep(1:target_interval, length = target_interval*3)
-times <- rep(target_interval, length = 3)
-StaffId <- rep(c(1:3), times = times)
-Pref <- rep(1, times = target_interval * 3)
+Days <- rep(1:target_interval, length = target_interval*4)
+times <- rep(target_interval, length = 4)
+StaffId <- rep(c(1:4), times = times)
+Pref <- rep(1, times = target_interval * 4)
 StaffShiftPref <- data.frame(StaffId, Days, Pref)
 
 ## Preference
 # 1: Shiroshita,
 # 2: Suzuki,
 # 3: Takeshita,
+# 4: Fujii
 
 StaffShiftPref
 target_w
@@ -58,7 +60,6 @@ shift_change <- function(name, number, StaffShiftPref){ # name = 1-14, number = 
 }
 
 # 1: Shiroshita
-StaffShiftPref <- shift_change(1, 1, StaffShiftPref)
 id = 1
 inconv1 <- c(1,2,3,4,5,8,11,12,19,23)
 StaffShiftPref[target_interval * (id-1) + inconv1, 3] <- 0
@@ -67,7 +68,7 @@ StaffShiftPref[target_interval * (id-1) + fixed1, 3] <- 2
 
 # 2: Suzuki
 id = 2
-inconv2 <- c(25,26,27,28,29,30)
+inconv2 <- c(5,25,26,27,28,29,30)
 StaffShiftPref[target_interval * (id-1) + inconv2, 3] <- 0
 
 # 3: Takeshita
@@ -83,6 +84,11 @@ StaffShiftPref[target_interval * (id-1) + inconv3, 3] <- 0
 id = 3
 fixed3 <- c(1,8,15,22,29)
 StaffShiftPref[target_interval * (id-1) + fixed3, 3] <- 2
+
+# 4:Fujii
+id = 4
+fixed4 <- c(4,11,18,25)
+StaffShiftPref[target_interval * (id-1) + fixed4, 3] <- 2
 
 ## from google spreadsheet-----
 # sun_start = function(date){
@@ -155,13 +161,16 @@ model <- MIPModel() %>%
   add_constraint(sum_expr(x[i,j], i = 1:numOfStaff) == 1, j =  1:numOfDays) %>%
   
   # shiroshita
-  add_constraint(sum_expr(x[1,j], j = 1:numOfDays) == 12) %>% 
+  add_constraint(sum_expr(x[1,j], j = 1:numOfDays) == 10) %>% 
   
   # suzuki
-  add_constraint(sum_expr(x[2,j], j = 1:numOfDays) == 12) %>%
+  add_constraint(sum_expr(x[2,j], j = 1:numOfDays) == 10) %>%
   
   # takeshita
-  add_constraint(sum_expr(x[3,j], j = 1:numOfDays) == 6)
+  add_constraint(sum_expr(x[3,j], j = 1:numOfDays) == 6) %>% 
+  
+  # Fujii
+  add_constraint(sum_expr(x[4,j], j = 1:numOfDays) == 4)
 
 ## inspect model
 model
@@ -187,7 +196,8 @@ roster
 calendar <- roster %>% 
   mutate(staff = case_when(staff == 1 ~ "城下",
                            staff == 2 ~ "鈴木",
-                           staff == 3 ~ "竹下"))
+                           staff == 3 ~ "竹下",
+                           staff == 4 ~ "藤井"))
 num <- as.numeric(target_end - target) + 1
 events <- rep(NA, target_interval)
 inconv_dual12 <- union(intersect(inconv1, inconv2), intersect(inconv2, inconv3))

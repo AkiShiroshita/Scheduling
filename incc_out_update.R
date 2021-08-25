@@ -163,6 +163,10 @@ StaffShiftPref <- shift_change(9, 4, StaffShiftPref)
 StaffShiftPref <- shift_change(9, 5, StaffShiftPref)
 StaffShiftPref <- shift_change(9, 6, StaffShiftPref)
 
+id = 9
+inconv = c(29)
+StaffShiftPref[target_interval * (id-1) + inconv, 3] <- 0
+
 # 10: Okano, Monday, Thursday, Friday, number: 1,2,5
 StaffShiftPref <- shift_change(10, 0, StaffShiftPref)
 StaffShiftPref <- shift_change(10, 3, StaffShiftPref)
@@ -210,12 +214,29 @@ StaffShiftPref[target_interval * (id-1) + fixed, 3] <- 2
 
 # Adjustment
 id = 1
-inconv = c(6)
+inconv = c(6,17)
+StaffShiftPref[target_interval * (id-1) + inconv, 3] <- 0
+
+id = 2
+inconv = c(13)
 StaffShiftPref[target_interval * (id-1) + inconv, 3] <- 0
 
 id = 8
 inconv = c(29)
 StaffShiftPref[target_interval * (id-1) + inconv, 3] <- 0
+
+id = 9
+inconv = c(9)
+StaffShiftPref[target_interval * (id-1) + inconv, 3] <- 0
+
+id = 4
+inconv = c(3)
+StaffShiftPref[target_interval * (id-1) + inconv, 3] <- 0
+
+id = 12
+inconv = c(22)
+StaffShiftPref[target_interval * (id-1) + inconv, 3] <- 0
+
 ## from google spreadsheet-----
 # sun_start = function(date){
 #   date_fm = as.Date(date,format="%Y-%m-%d")+1
